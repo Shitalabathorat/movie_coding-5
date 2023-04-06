@@ -138,20 +138,24 @@ app.get("/directors/", async (request, response) => {
 });
 
 // 7th API Get by specific director
-const responseObject = (dbObject) => {
-  return {
-    movieName: dbObject.movie_name,
-  };
-};
 
 app.get("/directors/:directorId/movies/", async (request, response) => {
   const { directorId } = request.params;
-  const getDirectorQuery = `
-    SELECT *
-    FROM movie
-    WHERE director_id=${directorId};`;
-  const mov = await db.all(getDirectorQuery);
-  response.send(responseObject(mov));
+  // Destructuring the directorId from the request parameters
+  const getDirectorMoviesQuery = `
+    SELECT
+      movie_name
+    FROM
+      movie
+    WHERE
+      director_id='${directorId}';`;
+  // The above SQL query will give all the movies with director_id matched
+
+  const moviesArray = await db.all(getDirectorMoviesQuery);
+  response.send(
+    moviesArray.map((eachMovie) => ({ movieName: eachMovie.movie_name }))
+  );
+  // converting the case of the response from snake_case to camelCase
 });
 
 module.exports = app;
